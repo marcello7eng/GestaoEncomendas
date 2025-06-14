@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
+<h:head>
+    <title>Gestão de Encomendas</title>
+</h:head>
+<h:body>
+    <h:form>
+        <p:panel header="Cadastrar Encomenda">
+            <p:inputText value="#{encomendaBean.encomenda.codigoRastreio}" placeholder="Código de Rastreio" /><br/>
+            <p:inputText value="#{encomendaBean.encomenda.link}" placeholder="Link de Rastreamento" /><br/>
+            <p:selectOneMenu value="#{encomendaBean.encomenda.status}">
+                <f:selectItem itemLabel="Selecione o status" itemValue="" />
+                <f:selectItem itemLabel="Recebido" itemValue="Recebido" />
+                <f:selectItem itemLabel="Pendente" itemValue="Pendente" />
+            </p:selectOneMenu><br/>
+            <p:inputTextarea value="#{encomendaBean.encomenda.descricao}" placeholder="Descrição" /><br/>
+            <p:inputText value="#{encomendaBean.encomenda.remetente}" placeholder="Remetente" /><br/>
+            <p:inputTextarea value="#{encomendaBean.encomenda.observacoes}" placeholder="Observações" /><br/>
+            <p:commandButton value="Salvar" action="#{encomendaBean.salvar}" update="@form" />
+        </p:panel>
+
+        <p:separator/>
+
+        <p:panel header="Minhas Encomendas">
+            <p:dataTable value="#{encomendaBean.lista}" var="e">
+                <p:column headerText="Código">
+                    #{e.codigoRastreio}
+                </p:column>
+                <p:column headerText="Status">
+                    #{e.status}
+                </p:column>
+                <p:column headerText="Remetente">
+                    #{e.remetente}
+                </p:column>
+                <p:column headerText="Link">
+                    <h:outputLink value="#{e.link}" target="_blank">Rastrear</h:outputLink>
+                </p:column>
+            </p:dataTable>
+        </p:panel>
+    </h:form>
+</h:body>
+</html>
