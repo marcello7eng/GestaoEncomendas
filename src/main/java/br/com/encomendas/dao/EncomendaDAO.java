@@ -23,7 +23,15 @@ public class EncomendaDAO {
     }
 
     public boolean salvar(Encomenda e) throws SQLException {
-        String sql = "INSERT INTO encomendas (codigo_rastreio, link, status, descricao, remetente, observacoes) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql;
+        boolean atualizar = e.getId() != null && e.getId() > 0;
+
+        if (atualizar) {
+            sql = "UPDATE encomendas SET codigo_rastreio = ?, link = ?, status = ?, descricao = ?, remetente = ?, observacoes = ? WHERE id = ?";
+        } else {
+            sql = "INSERT INTO encomendas (codigo_rastreio, link, status, descricao, remetente, observacoes) VALUES (?, ?, ?, ?, ?, ?)";
+        }
+
         try (Connection conn = conectar(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, e.getCodigoRastreio());
             stmt.setString(2, e.getLink());
@@ -31,6 +39,20 @@ public class EncomendaDAO {
             stmt.setString(4, e.getDescricao());
             stmt.setString(5, e.getRemetente());
             stmt.setString(6, e.getObservacoes());
+
+            if (atualizar) {
+                stmt.setInt(7, e.getId()); // só no caso de update
+            }
+
+            int linhas = stmt.executeUpdate();
+            return linhas > 0;
+        }
+    }
+
+    public boolean excluir(Encomenda e) throws SQLException {
+        String sql = "DELETE FROM encomendas WHERE id = ?";
+        try (Connection conn = conectar(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, e.getId());
             int linhas = stmt.executeUpdate();
             return linhas > 0;
         }

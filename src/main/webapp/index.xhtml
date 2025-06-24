@@ -6,9 +6,82 @@
       xmlns:p="http://primefaces.org/ui">
 <h:head>
     <title>Gestão de Encomendas</title>
+
+    <style>
+        body {
+            background-color: #FFF8DC; /* fundo estilo vintage */
+            font-family: Arial, sans-serif;
+        }
+
+        .ui-panel {
+            background-color: #FFFBF0;
+            border: 2px solid #FFD700;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 15px;
+        }
+
+        .ui-panel .ui-panel-titlebar {
+            background-color: #FFD700;
+            color: #333;
+            font-weight: bold;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .ui-button {
+            background-color: #FFD700 !important;
+            border: none !important;
+            color: black !important;
+        }
+
+        .ui-button:hover {
+            background-color: #E6C200 !important;
+        }
+
+        .ui-selectonemenu {
+            width: 300px;
+        }
+
+        input, textarea {
+            width: 300px;
+            margin-bottom: 10px;
+        }
+
+        .ui-datatable th {
+            background-color: #FFD700;
+            color: black;
+            font-weight: bold;
+        }
+
+        .ui-datatable td {
+            background-color: white;
+        }
+
+        .action-buttons .ui-button {
+            margin-right: 5px;
+        }
+
+        @media screen and (max-width: 768px) {
+            input, textarea, .ui-selectonemenu {
+                width: 100% !important;
+            }
+            .action-buttons {
+                display: flex;
+                flex-direction: column;
+            }
+            .action-buttons .ui-button {
+                margin-bottom: 5px;
+            }
+        }
+    </style>
 </h:head>
 <h:body>
     <h:form>
+
+        <!-- Mensagens -->
+        <p:growl id="mensagens" showDetail="true" life="3000" />
+
+        <!-- Formulário de cadastro/edição -->
         <p:panel header="Cadastrar Encomenda">
             <p:inputText value="#{encomendaBean.encomenda.codigoRastreio}" placeholder="Código de Rastreio" /><br/>
             <p:inputText value="#{encomendaBean.encomenda.link}" placeholder="Link de Rastreamento" /><br/>
@@ -20,25 +93,68 @@
             <p:inputTextarea value="#{encomendaBean.encomenda.descricao}" placeholder="Descrição" /><br/>
             <p:inputText value="#{encomendaBean.encomenda.remetente}" placeholder="Remetente" /><br/>
             <p:inputTextarea value="#{encomendaBean.encomenda.observacoes}" placeholder="Observações" /><br/>
-            <p:commandButton value="Salvar" action="#{encomendaBean.salvar}" update="@form" />
+            <p:commandButton value="Salvar"
+                             actionListener="#{encomendaBean.salvar}"
+                             update="@form @form:mensagens"
+                             styleClass="ui-button" />
         </p:panel>
 
         <p:separator/>
 
+        <!-- Painel com filtro e tabela -->
         <p:panel header="Minhas Encomendas">
-            <p:dataTable value="#{encomendaBean.lista}" var="e">
+
+            <!-- Filtro por status -->
+            <p:selectOneMenu value="#{encomendaBean.filtroStatus}" style="width:200px;">
+                <f:selectItem itemLabel="Todos os Status" itemValue="" />
+                <f:selectItem itemLabel="Recebido" itemValue="Recebido" />
+                <f:selectItem itemLabel="Pendente" itemValue="Pendente" />
+                <p:ajax event="change" update="tabela" />
+            </p:selectOneMenu>
+
+            <br/><br/>
+
+            <!-- Tabela -->
+            <p:dataTable id="tabela"
+                         value="#{encomendaBean.lista}"
+                         var="e"
+                         paginator="true"
+                         rows="5"
+                         sortBy="#{e.remetente}">
+
                 <p:column headerText="Código">
                     #{e.codigoRastreio}
                 </p:column>
+
                 <p:column headerText="Status">
                     #{e.status}
                 </p:column>
+
                 <p:column headerText="Remetente">
                     #{e.remetente}
                 </p:column>
+
                 <p:column headerText="Link">
                     <h:outputLink value="#{e.link}" target="_blank">Rastrear</h:outputLink>
                 </p:column>
+
+                <p:column headerText="Ações">
+                    <div class="action-buttons">
+                        <p:commandButton icon="pi pi-pencil"
+                                         title="Editar"
+                                         actionListener="#{encomendaBean.editar(e)}"
+                                         update="@form @form:mensagens"
+                                         styleClass="ui-button-warning ui-button" />
+
+                        <p:commandButton icon="pi pi-trash"
+                                         title="Excluir"
+                                         actionListener="#{encomendaBean.excluir(e)}"
+                                         update="@form @form:mensagens"
+                                         styleClass="ui-button-danger ui-button"
+                                         onclick="return confirm('Tem certeza que deseja excluir esta encomenda?');" />
+                    </div>
+                </p:column>
+
             </p:dataTable>
         </p:panel>
     </h:form>
